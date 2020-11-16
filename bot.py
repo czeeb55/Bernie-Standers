@@ -9,14 +9,16 @@ import json
 from spotipy.oauth2 import SpotifyClientCredentials
 from discord.ext import commands
 from dotenv import load_dotenv
+from pathlib import Path
 
-load_dotenv(dotenv_path="C:/GitHub/Bernie-Standers/.env")
-
+load_dotenv() # Load .env
+#SPOTIPY_CLIENT_ID = os.getenv("SPOTIPY_CLIENT_ID")
+#POTIPY_CLIENT_SECRET = os.getenv("SPOTIPY_CLIENT_SECRET")
 auth_manager = SpotifyClientCredentials()
 sp = spotipy.Spotify(auth_manager=auth_manager)
 logging.basicConfig(level=logging.INFO)
 
-#load_dotenv()
+
 discordToken = os.getenv('DISCORD_BOT_TOKEN')
 imgflipUsername = os.getenv('IMGFLIP_USERNAME')
 imgflipSecret = os.getenv('IMGFLIP_SECRET')
@@ -27,15 +29,9 @@ imgflipBody = {
     'password' : imgflipSecret,
     'text0' : 'I am once again asking you to',
     'text1' : 'listen to H.E.R.'
-
 }
 
 bot = commands.Bot(command_prefix="-")
-
-@bot.command(name='bs',help='Says hi!')
-async def say_hi(ctx, name):
-    response = f"hi {name}!"
-    await ctx.send(response)
 
 @bot.command(name='GetSong',help='Gets a song from Spotify')
 async def get_song(ctx, song):
@@ -49,6 +45,5 @@ async def get_song(ctx, song):
         #await ctx.send(meme.json()['data']['url'])
     else:
         print("Oopsy") # Error handling yet to be implemented
-
 
 bot.run(discordToken)
