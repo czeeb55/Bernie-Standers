@@ -39,11 +39,11 @@ async def get_song(ctx, song):
     track = result['tracks']['items'][0]['external_urls']['spotify']
     imgflipBody['text1'] = f"listen to {song}"
     meme = requests.post(url=imgflipURL,params=imgflipBody)
-    if(meme.ok):
-        img = meme.json()['data']['url']
-        await ctx.send(f"{track} {img}")
-        #await ctx.send(meme.json()['data']['url'])
-    else:
-        print("Oopsy") # Error handling yet to be implemented
+    if(not meme.ok):
+        print("Oopsy")
+        return
+    img = meme.json()['data']['url']
+    await ctx.send(f"{track} {img}")
+        
 
 bot.run(discordToken)
