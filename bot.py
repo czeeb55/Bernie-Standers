@@ -3,10 +3,10 @@ import os
 import discord
 import logging
 import spotipy
-import asyncio
+#import asyncio
 import requests
-import json
-import dicttoxml
+#import json
+#import dicttoxml
 import pprint
 from spotipy.oauth2 import SpotifyClientCredentials
 from discord.ext import commands
@@ -46,6 +46,18 @@ def split_input(input):
     song = song.strip()
     return artist,song
 
+def validate_input(input):
+    if "##" not in input:
+        return "Invalid"
+    else:
+        splitInput = input.split("\n")
+        for line in splitInput:
+            if "##" not in line:
+                continue
+            else:
+                return line
+
+
 def get_artist_song_combo(artist,song):
     results = sp.search(q=f'artist: {artist} track: {song}', limit=1)
     items = results['tracks']['items']
@@ -55,6 +67,7 @@ def get_artist_song_combo(artist,song):
         return None
 
 # Check for "English" characters until find a way to send non-English to imgflip
+# Will still have issues if the name is in unsupported characters but this'll take care of most scenarios for now
 def is_english(s):
     try:
          s.encode(encoding='utf-8').decode('ascii')
@@ -62,25 +75,33 @@ def is_english(s):
         return False
     else:
         return True
+@bot.command(name='tornado',help='BBBYYYYYYEEEEEEEEEEEEEEEEEEE')
+async def post_ariana_tornado(ctx):
+    if ctx.message.author == bot.user:
+        return
+    else:
+        await ctx.message.channel.send('https://www.youtube.com/watch?v=pZKzRK9tStY')
 
-@bot.command(name='bernie',help='Bernie meme with Spotify link to searched Artist##Song')
+@bot.command(name='bernie',help='Bernie meme with Spotify link to searched Artist##Song\nInput: Artist ## Song\nex: Reol ## 1LDK')
 async def get_song(ctx, *,args):
-    if (("##" not in args)): # Checks for Artist##Song format. 
+    result = validate_input(args)
+    if result == "Invalid": # Checks for Artist##Song format. 
         if ctx.message.author == bot.user:
             return
         else:
-            await ctx.message.channel.send('I am once again asking you to check your syntax and give me a valid artist ## song. Please try again')
+            await ctx.message.channel.send('I am once again asking you to use the Artist ## Song syntax. Ex: Reol ## 1LDK')
         raise discord.DiscordException("Improper syntax")
-
-    artist,song = split_input(args)
+    else:
+        artist,song = split_input(result)
+    
     spotifySearchResults = get_artist_song_combo(artist,song)
 
     if spotifySearchResults == None:
         if ctx.message.author == bot.user:
             return
         else:
-            await ctx.message.channel.send('I am once again asking you to check your syntax and give me a valid artist ## song. Please try again')
-        raise discord.DiscordException("Could not find a result for artist ## song combo")
+            await ctx.message.channel.send('Could not find a match on Spotify\nI am once again asking you to check your syntax and give me a valid artist ## song.')
+        raise discord.DiscordException(f"Could not find a result for artist ## song combo.\nSearched for Artist:{artist},Song:{song}")
     else:
         track = spotifySearchResults['external_urls']['spotify']
     # Need to find a way to send non-english characters. imgflip GUI supports it, but API gives blank boxes
