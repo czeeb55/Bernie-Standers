@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 from pathlib import Path
 
 load_dotenv() # Load .env
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 SPOTIPY_CLIENT_ID = os.getenv("SPOTIPY_CLIENT_ID")
 SPOTIPY_CLIENT_SECRET = os.getenv("SPOTIPY_CLIENT_SECRET")
 try:
@@ -37,7 +37,7 @@ imgflipBody = {
 }
 
 # Bot will only respond to commands with this prefix
-bot = commands.Bot(command_prefix="$")
+bot = commands.Bot(command_prefix="$", case_insensitive=True)
 
 def split_input(input):
     #combinedInput = " ".join(str(input))
@@ -75,12 +75,40 @@ def is_english(s):
         return False
     else:
         return True
-@bot.command(name='tornado',help='BBBYYYYYYEEEEEEEEEEEEEEEEEEE')
+@bot.command(name='tornado',help='🌪🌪🌪🌪🌪🌪🌪🌪🌪🌪🌪🌪🌪🌪🌪🌪BBBYYYYYYEEEEEEEEEEEEEEEEEEE🌪🌪🌪🌪🌪🌪🌪🌪🌪🌪🌪🌪🌪🌪🌪🌪')
 async def post_ariana_tornado(ctx):
     if ctx.message.author == bot.user:
         return
     else:
-        await ctx.message.channel.send('https://www.youtube.com/watch?v=pZKzRK9tStY')
+        await ctx.message.channel.send('🌪🌪🌪🌪🌪🌪🌪🌪🌪🌪🌪🌪🌪🌪🌪🌪\nhttps://www.youtube.com/watch?v=pZKzRK9tStY\n🌪🌪🌪🌪🌪🌪🌪🌪🌪🌪🌪🌪🌪🌪🌪🌪')
+
+@bot.command(name='no',help='Bernie finger wags at you')
+async def finger_wag(ctx):
+    if ctx.message.author == bot.user:
+        return
+    else:
+        await ctx.message.channel.send('https://tenor.com/view/berniesanders-gif-5932778')
+
+@bot.command(name='yes',help='Bernie finger wags at you')
+async def finger_wag(ctx):
+    if ctx.message.author == bot.user:
+        return
+    else:
+        await ctx.message.channel.send('https://tenor.com/view/bernie-yes-finger-point-gif-13458091')
+
+@bot.command(name='work',help='work work DEPRESSSIIIOOONNNNNN')
+async def anxiety(ctx):
+    if ctx.message.author == bot.user:
+        return
+    else:
+        await ctx.message.channel.send('https://cdn.discordapp.com/attachments/810287917242646538/849450349131726887/video0.mp4')
+@bot.command(name='june',help='if you do mouth stuff, you get 4')
+async def anxiety(ctx):
+    if ctx.message.author == bot.user:
+        return
+    else:
+        await ctx.message.channel.send('https://cdn.discordapp.com/attachments/845801615781003275/862088022929571860/video0.mp4')
+
 
 @bot.command(name='bernie',help='Bernie meme with Spotify link to searched Artist##Song\nInput: Artist ## Song\nex: Reol ## 1LDK')
 async def get_song(ctx, *,args):
@@ -104,15 +132,16 @@ async def get_song(ctx, *,args):
         raise discord.DiscordException(f"Could not find a result for artist ## song combo.\nSearched for Artist:{artist},Song:{song}")
     else:
         track = spotifySearchResults['external_urls']['spotify']
+        trackName = spotifySearchResults['name'] # Will have later steps use the full song name if someone does a partial song name search
     # Need to find a way to send non-english characters. imgflip GUI supports it, but API gives blank boxes
     # May be due to encoding?
     #song = song.encode('utf-8')
     #headers = {"Content-Type": "text/html; charset=UTF-8"}
-
-    if is_english(song):
-        imgflipBody['text1'] = f"listen to {song}"
+    
+    if is_english(trackName):
+        imgflipBody['text1'] = f"listen to {trackName}"
     else:
-         imgflipBody['text1'] = f"listen to {artist}"
+        imgflipBody['text1'] = f"listen to {artist}"
     meme = requests.post(url=imgflipURL,data=imgflipBody)
     if(not meme.ok):
         raise discord.DiscordException(f"Failed to reach imgflip. Reason: {meme.reason}")
@@ -122,5 +151,19 @@ async def get_song(ctx, *,args):
         img = meme.json()['data']['url']
         await ctx.send(f"{track} {img}")
         
-
+@bot.event
+async def on_message(message):
+    if (("get a server" in message.content.lower()) or ("bernie at work" in message.content.lower()) or ("bernie is at work" in message.content.lower())) and (message.author.name.lower() == "swizzlekat"):
+        imgflipBody['text1']="mind ya business"
+        meme = requests.post(url=imgflipURL,data=imgflipBody)
+        if(not meme.ok):
+            raise discord.DiscordException(f"Failed to reach imgflip. Reason: {meme.reason}")
+        elif meme.json()['success'] == False:
+            raise discord.DiscordException(f"Failed to get meme from imgflip. Reason: {meme.json()['error_message']}")
+        else:
+            img = meme.json()['data']['url']
+            await message.channel.send(f"{message.author.mention} {img}")
+    elif "get a server" in message.content.lower():
+        await message.channel.send(f"{message.author.mention}https://tenor.com/view/im-watching-watch-you-eyes-on-you-kid-cute-gif-16282723")
+    await bot.process_commands(message)
 bot.run(discordToken)
